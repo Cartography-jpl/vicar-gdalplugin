@@ -1,0 +1,32 @@
+if BUILD_VICAR_GDALPLUGIN
+gdalplugin_LTLIBRARIES+= gdal_vicar.la
+gdal_vicar_la_LDFLAGS = -module -avoid-version
+EXTRA_DIST += @srcvicargdal@/vicar_file.h
+EXTRA_DIST += @srcvicargdal@/geotiff_file.h
+EXTRA_DIST += @srcvicargdal@/vicar_gdal_exception.h
+EXTRA_DIST += @srcvicargdal@/vicar_dataset.h
+EXTRA_DIST += @srcvicargdal@/vicar_raster_band.h
+EXTRA_DIST += @srcvicargdal@/vicar_ogr.h
+gdal_vicar_la_SOURCES = @srcvicargdal@/vicar_gdal.cc
+gdal_vicar_la_SOURCES+= @srcvicargdal@/geotiff_file.cc
+gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_dataset.cc
+gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_file.cc
+gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_ogr.cc
+gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_raster_band.cc
+gdal_vicar_la_LDFLAGS+= $(VICAR_RTL_LIBS) $(GDAL_LIBS)
+gdal_vicar_la_LDFLAGS+= -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) $(BOOST_REGEX_LIB) $(BOOST_FILESYSTEM_LIB)
+gdal_vicar_la_CPPFLAGS = $(AM_CPPFLAGS) $(VICAR_RTL_CFLAGS)
+gdal_vicar_la_CPPFLAGS+= $(BOOST_CPPFLAGS) $(GDAL_CFLAGS)
+
+install_vicar_gdalplugin_early: gdal_vicar.la
+	$(MKDIR_P) $(DESTDIR)$(VICAR_GDALPLUGIN_HOME)
+	if test -f "$(DESTDIR)$(VICAR_GDALPLUGIN_HOME)/gdal_vicar.la"; then :; else \
+          $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) gdal_vicar.la "$(DESTDIR)$(VICAR_GDALPLUGIN_HOME)"; \
+        fi
+else # Don't build vicar gdal plugin
+install_vicar_gdalplugin_early:
+	$(noop)
+endif
+if BUILD_VICAR_RTL
+install_vicar_gdalplugin_early: install_vicar_rtl_early
+endif
