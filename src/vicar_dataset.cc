@@ -482,6 +482,11 @@ VicarDataset::~VicarDataset()
       ogr.to_vicar(proj_ref, transform, is_point, *i);
 #endif    
   }
+  // The interface to FlushCache changed in GDAL 3.4
+#if(GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,4,0))
+  FlushCache(true);
+#else
   FlushCache();
+#endif
   CPLFree(gcps);
 }
