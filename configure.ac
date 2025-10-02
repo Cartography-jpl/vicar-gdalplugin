@@ -1,4 +1,4 @@
-AC_INIT(vicar-gdalplugin, 1.12)
+AC_INIT(vicar-gdalplugin, 1.13)
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([config/m4])
 AFIDS_COMMON

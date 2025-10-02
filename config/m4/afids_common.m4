@@ -4,9 +4,8 @@
 AC_DEFUN([AFIDS_COMMON],[
 AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])
 AC_REQUIRE([AC_PROG_CC])
-# Not needed for this code
-#AC_REQUIRE([AC_F77_LIBRARY_LDFLAGS])
-#AC_REQUIRE([AC_PROG_FC])
+AC_REQUIRE([AC_F77_LIBRARY_LDFLAGS])
+AC_REQUIRE([AC_PROG_FC])
 # For some bizarre reason, this doesn't fail if there isn't a C++ compiler.
 # This seems to be a bug, which had some discussion on the forums a while back
 # (see http://lists.gnu.org/archive/html/bug-autoconf/2010-05/msg00001.html),
@@ -30,10 +29,18 @@ AC_CHECK_PROG(HAVE_PERL, perl, yes, no)
 if test "$HAVE_PERL" = "no"; then
    AC_MSG_ERROR([Could not find perl, which is required for install]);
 fi
+AC_CHECK_PROG(HAVE_M4, m4, yes, no)
+if test "$HAVE_M4" = "no"; then
+   AC_MSG_ERROR([Could not find m4, which is required for install]);
+fi
 AC_CHECK_PROG(HAVE_PATCH, patch, yes, no)
 if test "$HAVE_PATCH" = "no"; then
    AC_MSG_ERROR([Could not find patch, which is required for install]);
 fi
+# Make sure we have perl module Data::Dumper which is used by some
+# installed programs. This is actually a separate install on centos 7,
+# so make sure it is there.
+AC_PERL_MODULE(Data::Dumper)
 
 # We need to have csh to run things like vicarb
 AC_CHECK_PROG(HAVE_CSH, csh, yes, no)
@@ -55,17 +62,17 @@ ALL RIGHTS RESERVED. U.S. Government Sponsorship acknowledged.])
 # http://noisebleed.blogetery.com/2010/02/27/tar-file-name-is-too-long-max-99/#howtofixit
 AM_INIT_AUTOMAKE([1.9 tar-pax])
 AM_MAINTAINER_MODE
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_CXX
 AC_PROG_LN_S
 AC_COPY_DIR
 
 #AC_PREFIX_DEFAULT([`pwd`/install])
 AC_PROG_CC
-#AC_PROG_F77
-#AC_PROG_FC
-#AC_F77_LIBRARY_LDFLAGS
-#AC_F77_WRAPPERS
+AC_PROG_F77
+AC_PROG_FC
+AC_F77_LIBRARY_LDFLAGS
+AC_F77_WRAPPERS
 
 AM_PROG_CC_C_O
 AX_CODE_COVERAGE()
@@ -80,6 +87,24 @@ FFLAGS=""
 AC_SUBST(AM_FFLAGS)
 
 #=================================================================
+# We are far enough along in time that we should be able to just
+# require a C++17 compiler. We can perhaps relax that is needed to
+# support older versions, but as of now (2024) this standard is already
+# 7 years old. It is probably too soon to require C++20 right now,
+# we can revisit that as needed (and perhaps just have this code
+# conditional for now).
+#=================================================================
+
+AX_CXX_COMPILE_STDCXX([17], [ext], [mandatory])
+
+#=================================================================
+# C++ Threading requires pthread sometimes
+#=================================================================
+
+AX_PTHREAD()
+CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+
+#=================================================================
 # Test if we are using GCC compiler. Some flags get set in the 
 # Makefile that should only be set for GCC.
 #=================================================================
@@ -87,24 +112,11 @@ AC_SUBST(AM_FFLAGS)
 AM_CONDITIONAL([HAVE_GCC], [test "$GCC" = yes])
 
 #=================================================================
-# Start allowing code that requires newer version of compilers.
-# C++ 11 in particular has been around for a long time, and we
-# should probably be able to depend on this being available.
-#
-# For now, don't require any of this - we'll compile code with
-# HAVE_CXX11 etc. We may relax this over time.
-#=================================================================
-
-AX_CXX_COMPILE_STDCXX([11], [ext], [optional])
-# Don't currently have 14 or 17 code, but could add tests if this
-# before useful
-
-#=================================================================
 # We have a small amount of code that gets different flags depending on
 # if we are using g77 or gfortran, so pass this to the Makefile.
 #=================================================================
 
-#AM_CONDITIONAL([HAVE_G77], [test `expr "${F77}" : '.*g77'` != "0"])
+AM_CONDITIONAL([HAVE_G77], [test `expr "${F77}" : '.*g77'` != "0"])
 
 #=================================================================
 # Add prefix, THIRDPARTY, and /opt/afids_support for pkgconfig file
@@ -130,6 +142,22 @@ fi
 export PKG_CONFIG_PATH
 
 AC_SUBST([pkgconfigdir], [${libdir}/pkgconfig])
+AC_SUBST([geocalsupportdir], [$geocal_support_path])
+
+#=================================================================
+# Help the _AC_PATH_X macro find X11 header in conda, rather than
+# the system ones when doing a conda-build
+if test "x$CONDA_BUILD" != x && test "x$x_includes" == xNONE ; then
+   if test -r "$PREFIX/include/X11/Xlib.h"; then
+      x_includes="$PREFIX/include"
+      x_libraries="$PREFIX/lib"
+   fi
+elif test "x$CONDA_PREFIX" != x && test "x$x_includes" == xNONE ; then
+   if test -r "$CONDA_PREFIX/include/X11/Xlib.h"; then
+      x_includes="$CONDA_PREFIX/include"
+      x_libraries="$CONDA_PREFIX/lib"
+   fi
+fi
 
 #=================================================================
 # If defined, save THIRDPARTY directory so we can include it in our

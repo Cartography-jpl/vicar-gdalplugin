@@ -88,6 +88,7 @@ if test "x$want_boost" = "xyes"; then
                BOOST_DATETIME_LIB="-lboost_date_time"
                BOOST_IOSTREAMS_LIB="-lboost_iostreams"
                BOOST_SERIALIZATION_LIB="-lboost_serialization"
+               AC_DEFINE(HAVE_BOOST_SERIALIZATION_BOOST_ARRAY_HPP,,[Defined if we have boost/serialization/boost_array.hpp])
                boost_done=yes
             fi
             for ac_boost_lib_base in "$ac_boost_path/lib" "$ac_boost_path/lib64"; do
@@ -124,6 +125,93 @@ if test "x$want_boost" = "xyes"; then
 	        boost_version_check_needed=no
                 succeeded=no
             fi
+        fi
+        if test "x$build_boost" == "xyes" ; then
+	   boost_version_check_needed=no
+        fi
+        if test "$boost_version_check_needed" = "yes"; then
+	   CPPFLAGS_SAVED="$CPPFLAGS"
+	   CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+	   export CPPFLAGS
+
+ 	   LDFLAGS_SAVED="$LDFLAGS"
+ 	   LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
+ 	   export LDFLAGS
+
+ 	   AC_REQUIRE([AC_PROG_CXX])
+ 	   AC_LANG_PUSH(C++)
+ 	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	   @%:@include <boost/version.hpp>
+ 	   ]], [[
+ 	   #if BOOST_VERSION >= $WANT_BOOST_VERSION
+ 	   // Everything is okay
+ 	   #else
+ 	   #  error Boost version is too old
+ 	   #endif
+ 	   ]])],[
+ 	   succeeded=yes
+ 	   ],[
+ 	   succeeded=no
+	   AC_MSG_WARN([We found boost, but the version is too old])
+ 	   ])
+ 	   AC_LANG_POP([C++])
+        fi
+# We have a fix needed for specific versions of boost. Go ahead and
+# check for these.
+        if test "$succeeded" = "yes" ; then
+	   CPPFLAGS_SAVED="$CPPFLAGS"
+	   CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
+	   export CPPFLAGS
+
+ 	   LDFLAGS_SAVED="$LDFLAGS"
+ 	   LDFLAGS="$LDFLAGS $BOOST_LDFLAGS"
+ 	   export LDFLAGS
+
+ 	   AC_REQUIRE([AC_PROG_CXX])
+ 	   AC_LANG_PUSH(C++)
+
+ 	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	   @%:@include <boost/version.hpp>
+ 	   ]], [[
+ 	   #if BOOST_VERSION / 100 == 1056
+ 	   // At 1.56
+ 	   #else
+ 	   #  error Boost version is not 1.56
+ 	   #endif
+ 	   ]])],[
+	   BOOST_CPPFLAGS="$boost_include$srcdir/boost_fix/1.56 $BOOST_CPPFLAGS"
+ 	   ],[
+ 	   ])
+
+ 	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	   @%:@include <boost/version.hpp>
+ 	   ]], [[
+ 	   #if BOOST_VERSION / 100 == 1057
+ 	   // At 1.57
+ 	   #else
+ 	   #  error Boost version is not 1.57
+ 	   #endif
+ 	   ]])],[
+	   BOOST_CPPFLAGS="$boost_include$srcdir/boost_fix/1.57 $BOOST_CPPFLAGS"
+ 	   ],[
+ 	   ])
+
+ 	   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+ 	   @%:@include <boost/version.hpp>
+ 	   ]], [[
+ 	   #if BOOST_VERSION / 100 == 1058
+ 	   // At 1.58
+ 	   #else
+ 	   #  error Boost version is not 1.58
+ 	   #endif
+ 	   ]])],[
+	   BOOST_CPPFLAGS="$boost_include$srcdir/boost_fix/1.58 $BOOST_CPPFLAGS"
+ 	   ],[
+ 	   ])
+
+	   # Also, check for the header file 
+           AC_CHECK_HEADERS([boost/serialization/boost_array.hpp])
+ 	   AC_LANG_POP([C++])
         fi
 
         if test "$succeeded" != "yes" ; then
