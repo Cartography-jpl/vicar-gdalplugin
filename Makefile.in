@@ -138,6 +138,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/m4/ac_boost.m4 \
 	$(top_srcdir)/config/m4/ac_expat.m4 \
 	$(top_srcdir)/config/m4/ac_gdal.m4 \
 	$(top_srcdir)/config/m4/ac_geos.m4 \
+	$(top_srcdir)/config/m4/ac_geotiff.m4 \
 	$(top_srcdir)/config/m4/ac_handle_with_arg.m4 \
 	$(top_srcdir)/config/m4/ac_ogdi.m4 \
 	$(top_srcdir)/config/m4/ac_openjpeg.m4 \
@@ -561,6 +562,9 @@ GDAL_LIBS = @GDAL_LIBS@
 GDAL_PREFIX = @GDAL_PREFIX@
 GEOS_CFLAGS = @GEOS_CFLAGS@
 GEOS_LIBS = @GEOS_LIBS@
+GEOTIFF_CFLAGS = @GEOTIFF_CFLAGS@
+GEOTIFF_LIBS = @GEOTIFF_LIBS@
+GEOTIFF_PREFIX = @GEOTIFF_PREFIX@
 GREP = @GREP@
 HAVE_CSH = @HAVE_CSH@
 HAVE_CXX = @HAVE_CXX@
@@ -726,8 +730,8 @@ check_DATA =
 gdalplugin_LTLIBRARIES = $(am__append_2)
 @BUILD_VICAR_GDALPLUGIN_TRUE@gdal_vicar_la_LDFLAGS = -module \
 @BUILD_VICAR_GDALPLUGIN_TRUE@	-avoid-version $(VICAR_RTL_LIBS) \
-@BUILD_VICAR_GDALPLUGIN_TRUE@	$(GDAL_LIBS) -R $(BOOST_LIBDIR) \
-@BUILD_VICAR_GDALPLUGIN_TRUE@	-L$(BOOST_LIBDIR) \
+@BUILD_VICAR_GDALPLUGIN_TRUE@	$(GDAL_LIBS) $(GEOTIFF_LIBS) -R \
+@BUILD_VICAR_GDALPLUGIN_TRUE@	$(BOOST_LIBDIR) -L$(BOOST_LIBDIR) \
 @BUILD_VICAR_GDALPLUGIN_TRUE@	$(BOOST_REGEX_LIB) \
 @BUILD_VICAR_GDALPLUGIN_TRUE@	$(BOOST_FILESYSTEM_LIB)
 @BUILD_VICAR_GDALPLUGIN_TRUE@gdal_vicar_la_SOURCES =  \
@@ -739,7 +743,8 @@ gdalplugin_LTLIBRARIES = $(am__append_2)
 @BUILD_VICAR_GDALPLUGIN_TRUE@	@srcvicargdal@/vicar_raster_band.cc
 @BUILD_VICAR_GDALPLUGIN_TRUE@gdal_vicar_la_CPPFLAGS = $(AM_CPPFLAGS) \
 @BUILD_VICAR_GDALPLUGIN_TRUE@	$(VICAR_RTL_CFLAGS) \
-@BUILD_VICAR_GDALPLUGIN_TRUE@	$(BOOST_CPPFLAGS) $(GDAL_CFLAGS)
+@BUILD_VICAR_GDALPLUGIN_TRUE@	$(BOOST_CPPFLAGS) $(GDAL_CFLAGS) \
+@BUILD_VICAR_GDALPLUGIN_TRUE@	$(GEOTIFF_CFLAGS)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

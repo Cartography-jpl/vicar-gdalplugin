@@ -12,6 +12,7 @@ VICAR_GDALPLUGIN_SOURCE_DIRECTORY
 AC_BOOST(required, cannot_build, default_search, 1.46.0)
 AC_VICAR_RTL(required, cannot_build, default_search)
 AC_GDAL(required, cannot_build, default_search)
+AC_GEOTIFF(required, cannot_build, default_search)
 
 # Always build VICAR GDAL plugin
 AM_CONDITIONAL([BUILD_VICAR_GDALPLUGIN], [true])

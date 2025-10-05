@@ -6,6 +6,7 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
+configure = "/ldata/smyth/vicar-gdalplugin/env//../configure --prefix=$CONDA_PREFIX"
 
 [dependencies]
 git = "*"
@@ -14,9 +15,6 @@ patch = "*"
 make = "*"
 pkg-config = "*"
 ncurses = "*"
-gcc = "*"
-gxx = "*"
-gfortran = "*"
 libtool = "*"
 automake = "*"
 autoconf = "*"
@@ -24,3 +22,7 @@ vicar-rtl = "*"
 libgdal = "*"
 boost = "*"
 expat = "*"
+gcc = ">=15.2.0,<15.3"
+gxx = ">=15.2.0,<15.3"
+gfortran = ">=15.2.0,<15.3"
+geotiff = ">=1.7.4,<2"

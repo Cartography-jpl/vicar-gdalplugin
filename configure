@@ -657,6 +657,13 @@ LTLIBOBJS
 LIBOBJS
 BUILD_VICAR_GDALPLUGIN_FALSE
 BUILD_VICAR_GDALPLUGIN_TRUE
+BUILD_GEOTIFF_FALSE
+BUILD_GEOTIFF_TRUE
+HAVE_GEOTIFF_FALSE
+HAVE_GEOTIFF_TRUE
+GEOTIFF_PREFIX
+GEOTIFF_LIBS
+GEOTIFF_CFLAGS
 BUILD_ECW_PLUGIN_FALSE
 BUILD_ECW_PLUGIN_TRUE
 ECW_LIBS
@@ -911,6 +918,7 @@ with_ogdi
 with_proj
 with_expat
 with_openjpeg
+with_geotiff
 '
       ac_precious_vars='build_alias
 host_alias
@@ -947,7 +955,9 @@ PROJ_LIBS
 EXPAT_CFLAGS
 EXPAT_LIBS
 OPENJPEG_CFLAGS
-OPENJPEG_LIBS'
+OPENJPEG_LIBS
+GEOTIFF_CFLAGS
+GEOTIFF_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1632,6 +1642,9 @@ Optional Packages:
   --with-openjpeg[=DIR]   use openjpeg (default is yes if found) - it is
                           possible to specify the root directory for openjpeg
                           (optional).
+  --with-geotiff[=DIR]    use Geotiff (default is yes if found) - it is
+                          possible to specify the root directory for Geotiff
+                          (optional).
 
 Some influential environment variables:
   CC          C compiler command
@@ -1676,6 +1689,10 @@ Some influential environment variables:
               C compiler flags for OPENJPEG, overriding pkg-config
   OPENJPEG_LIBS
               linker flags for OPENJPEG, overriding pkg-config
+  GEOTIFF_CFLAGS
+              C compiler flags for GEOTIFF, overriding pkg-config
+  GEOTIFF_LIBS
+              linker flags for GEOTIFF, overriding pkg-config
 
 Use these variables to override the choices made by 'configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -34931,6 +34948,228 @@ done_gdal="yes"
 fi
 
 
+# Guard against running twice
+if test "x$done_geotiff" = "x"; then
+
+have_geotiff="no"
+build_geotiff="no"
+build_neededgeotiff="no"
+want_geotiff="no"
+if test "required" != "do_not_use"; then
+
+# Check whether --with-geotiff was given.
+if test ${with_geotiff+y}
+then :
+  withval=$with_geotiff;
+    if test "$withval" = "no"; then
+        want_geotiff="no"
+    elif test "$withval" = "yes"; then
+        want_geotiff="yes"
+        ac_geotiff_path=""
+    elif test "$withval" = "build"; then
+        if test "cannot_build" != "can_build"; then
+            as_fn_error $? "The \"build\" option is not supported in this particular package for --with-geotiff" "$LINENO" 5
+        fi
+        want_geotiff="yes"
+        build_geotiff="yes"
+        ac_geotiff_path="\${prefix}"
+    else
+        want_geotiff="yes"
+        ac_geotiff_path="$withval"
+    fi
+
+else case e in #(
+  e)
+    want_geotiff="yes"
+    if test "cannot_build" = "can_build"; then
+      if test "default_search" = "default_build"; then
+        want_geotiff="yes"
+        build_geotiff="yes"
+        ac_geotiff_path="\${prefix}"
+      elif test "default_search" != "default_search_not_thirdparty_all" -a "$THIRDPARTY" = "build"; then
+        want_geotiff="yes"
+        build_geotiff="yes"
+        ac_geotiff_path="\${prefix}"
+      elif test "$THIRDPARTY" = "build_needed"; then
+        want_geotiff="yes"
+        build_needed_geotiff="yes"
+      fi
+    fi
+     ;;
+esac
+fi
+
+fi
+
+if test "x$want_geotiff" = "xyes"; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Geotiff library" >&5
+printf %s "checking for Geotiff library... " >&6; }
+        succeeded=no
+        if test "$ac_geotiff_path" != ""; then
+	    GEOTIFF_PREFIX="$ac_geotiff_path"
+            GEOTIFF_LIBS="-L$ac_geotiff_path/lib -lgeotiff -ltiff -ljpeg"
+            GEOTIFF_CFLAGS="-I$ac_geotiff_path/include"
+            succeeded=yes
+        else
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libgeotiff" >&5
+printf %s "checking for libgeotiff... " >&6; }
+
+if test -n "$GEOTIFF_CFLAGS"; then
+    pkg_cv_GEOTIFF_CFLAGS="$GEOTIFF_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libgeotiff\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libgeotiff") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_GEOTIFF_CFLAGS=`$PKG_CONFIG --cflags "libgeotiff" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$GEOTIFF_LIBS"; then
+    pkg_cv_GEOTIFF_LIBS="$GEOTIFF_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libgeotiff\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libgeotiff") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_GEOTIFF_LIBS=`$PKG_CONFIG --libs "libgeotiff" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        GEOTIFF_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libgeotiff" 2>&1`
+        else
+	        GEOTIFF_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libgeotiff" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$GEOTIFF_PKG_ERRORS" >&5
+
+	succeeded=no
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+	succeeded=no
+else
+	GEOTIFF_CFLAGS=$pkg_cv_GEOTIFF_CFLAGS
+	GEOTIFF_LIBS=$pkg_cv_GEOTIFF_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	succeeded=yes
+fi
+  if test "$succeeded" = "yes"; then
+     if test -z "$GEOTIFF_PREFIX"; then
+        GEOTIFF_PREFIX=`$PKG_CONFIG --variable=prefix "libgeotiff" 2>/dev/null`
+     fi
+  fi
+  if test "$succeeded" = "no"; then
+     for ac_path_tmp in $prefix $CONDA_PREFIX $THIRDPARTY /opt/afids_support /opt/afids /usr /usr/local /opt /opt/local /opt/local/lib/hdfeos5 /sw ; do
+       if test -e "$ac_path_tmp/include/xtiffio.h" && test -r "$ac_path_tmp/include/xtiffio.h"; then
+          GEOTIFF_PREFIX=$ac_path_tmp
+          GEOTIFF_CFLAGS="-I$ac_path_tmp/include/"
+          if test -e "$ac_path_tmp/lib/libgeotiff.so"; then
+             GEOTIFF_LIBS="-R$ac_path_tmp/lib/ -L$ac_path_tmp/lib/ -lgeotiff"
+             succeeded=yes
+             break;
+          elif test -e "$ac_path_tmp/lib/libgeotiff.dylib"; then
+             GEOTIFF_LIBS="-R$ac_path_tmp/lib/ -L$ac_path_tmp/lib/ -lgeotiff"
+             succeeded=yes
+             break;
+          elif test -e "$ac_path_tmp/lib64/libgeotiff.so"; then
+             GEOTIFF_LIBS="-R$ac_path_tmp/lib64/ -L$ac_path_tmp/lib64/ -lgeotiff"
+             succeeded=yes
+             break;
+          elif test -e "$ac_path_tmp/lib64/libgeotiff.dylib"; then
+             GEOTIFF_LIBS="-R$ac_path_tmp/lib64/ -L$ac_path_tmp/lib64/ -lgeotiff"
+             succeeded=yes
+             break;
+          fi
+       fi
+     done
+  fi
+
+        fi
+	if test "$succeeded" != "yes" -a "x$build_needed_geotiff" == "xyes" ; then
+            build_geotiff="yes"
+            ac_geotiff_path="\${prefix}"
+	    GEOTIFF_PREFIX="$ac_geotiff_path"
+            GEOTIFF_LIBS="-L$ac_geotiff_path/lib -lgeotiff -ltiff -ljpeg"
+            GEOTIFF_CFLAGS="-I$ac_geotiff_path/include"
+            succeeded=yes
+        fi
+
+        if test "$succeeded" != "yes" ; then
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        else
+                { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+
+
+
+printf "%s\n" "#define HAVE_GEOTIFF /**/" >>confdefs.h
+
+                have_geotiff="yes"
+        fi
+fi
+ if test "$have_geotiff" = "yes"; then
+  HAVE_GEOTIFF_TRUE=
+  HAVE_GEOTIFF_FALSE='#'
+else
+  HAVE_GEOTIFF_TRUE='#'
+  HAVE_GEOTIFF_FALSE=
+fi
+
+ if test "$build_geotiff" = "yes"; then
+  BUILD_GEOTIFF_TRUE=
+  BUILD_GEOTIFF_FALSE='#'
+else
+  BUILD_GEOTIFF_TRUE='#'
+  BUILD_GEOTIFF_FALSE=
+fi
+
+
+
+if test "required" = "required"; then
+  if test "$have_geotiff" = "no"; then
+     as_fn_error $? "
+The Geotiff library is required by AFIDS. Try specifying
+location using --with-geotiff if configure could't find the
+library. " "$LINENO" 5
+  fi
+fi
+
+done_geotiff="yes"
+fi
+
+
 # Always build VICAR GDAL plugin
  if true; then
   BUILD_VICAR_GDALPLUGIN_TRUE=
@@ -35244,6 +35483,14 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_ECW_PLUGIN_TRUE}" && test -z "${BUILD_ECW_PLUGIN_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_ECW_PLUGIN\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_GEOTIFF_TRUE}" && test -z "${HAVE_GEOTIFF_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_GEOTIFF\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${BUILD_GEOTIFF_TRUE}" && test -z "${BUILD_GEOTIFF_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_GEOTIFF\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_VICAR_GDALPLUGIN_TRUE}" && test -z "${BUILD_VICAR_GDALPLUGIN_FALSE}"; then

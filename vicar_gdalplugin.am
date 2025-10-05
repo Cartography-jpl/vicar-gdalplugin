@@ -13,10 +13,10 @@ gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_dataset.cc
 gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_file.cc
 gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_ogr.cc
 gdal_vicar_la_SOURCES+= @srcvicargdal@/vicar_raster_band.cc
-gdal_vicar_la_LDFLAGS+= $(VICAR_RTL_LIBS) $(GDAL_LIBS)
+gdal_vicar_la_LDFLAGS+= $(VICAR_RTL_LIBS) $(GDAL_LIBS) $(GEOTIFF_LIBS)
 gdal_vicar_la_LDFLAGS+= -R $(BOOST_LIBDIR) -L$(BOOST_LIBDIR) $(BOOST_REGEX_LIB) $(BOOST_FILESYSTEM_LIB)
 gdal_vicar_la_CPPFLAGS = $(AM_CPPFLAGS) $(VICAR_RTL_CFLAGS)
-gdal_vicar_la_CPPFLAGS+= $(BOOST_CPPFLAGS) $(GDAL_CFLAGS)
+gdal_vicar_la_CPPFLAGS+= $(BOOST_CPPFLAGS) $(GDAL_CFLAGS) $(GEOTIFF_CFLAGS)
 
 install_vicar_gdalplugin_early: gdal_vicar.la
 	$(MKDIR_P) $(DESTDIR)$(VICAR_GDALPLUGIN_HOME)
