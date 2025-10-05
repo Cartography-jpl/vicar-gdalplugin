@@ -28,17 +28,19 @@ CONDA_PACKAGE_DIR=$(mkfile_dir)/../../afids-conda-package/afids-conda-channel
 OS := $(shell uname -s)
 
 ifeq ($(OS),Darwin)
-  PIXI_FILE_INSTALL=$(if $(filter $(CONDA_FIXED),yes), $(mkfile_dir)/osx/pixi.toml $(mkfile_dir)/osx/pixi.lock, $(mkfile_dir)/pixi.toml)
+  PIXI_LOCK_DIR:=$(mkfile_dir)/osx
   PIXI_COMPILER=compilers
 else
-  PIXI_FILE_INSTALL=$(if $(filter $(CONDA_FIXED),yes), $(mkfile_dir)/linux/pixi.toml $(mkfile_dir)/linux/pixi.lock, $(mkfile_dir)/pixi.toml)
+  PIXI_LOCK_DIR:=$(mkfile_dir)/linux
   PIXI_COMPILER=gcc gxx gfortran
 endif
+
+PIXI_FILE_INSTALL:=$(if $(filter $(PIXI_LOCKED),yes), $(PIXI_LOCK_DIR)/pixi.toml $(PIXI_LOCK_DIR)/pixi.lock, $(mkfile_dir)/pixi.toml)
 
 $(ENV_DIR): $(PIXI_FILE_INSTALL)
 	-rm -rf $(ENV_DIR)
 	pixi init -c conda-forge -c $(CONDA_PACKAGE_DIR) $(ENV_DIR)
-	cd $(ENV_DIR) && pixi config set --local run-post-link-scripts insecure && cp $^ . && pixi add $(PIXI_COMPILER) && pixi install
+	cd $(ENV_DIR) && pixi config set --local run-post-link-scripts insecure && cp $(PIXI_FILE_INSTALL) . && pixi add $(PIXI_COMPILER) && pixi install
 	- cd $(ENV_DIR) && pixi task rm configure
 	cd $(ENV_DIR) && pixi task add configure "$(mkfile_dir)/../configure --prefix=\$$CONDA_PREFIX"
 
@@ -52,3 +54,7 @@ recreate-env:
 # ------------------------------------------------------------
 create-env: $(ENV_DIR)
 
+# Update lock files, from existing environment
+# --------------------------------------------
+update-lock:
+	cp -f $(ENV_DIR)/pixi.toml $(ENV_DIR)/pixi.lock $(PIXI_LOCK_DIR)/
